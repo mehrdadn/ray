@@ -69,10 +69,16 @@ class Process {
   /// Returns an opaque pointer or handle to the underlying process object.
   /// Implementation detail, used only for identity testing. Do not dereference.
   const void *Get() const;
+  /// Sends SIGINT (~Ctrl+C on Windows) to the process. Unsafe for unowned processes.
+  /// Only valid for console processes.
+  void Interrupt();
   bool IsNull() const;
   bool IsValid() const;
-  /// Forcefully kills the process. Unsafe for unowned processes.
+  /// Sends SIGKILL to forcefully kill the process. Unsafe for unowned processes.
   void Kill();
+  /// Sends SIGTERM (~Ctrl+Break on Windows) to the process. Unsafe for unowned processes.
+  /// Only valid for console processes.
+  void Terminate();
   /// Convenience function to start a process in the background.
   /// \param pid_file A file to write the PID of the spawned process in.
   static std::pair<Process, std::error_code> Spawn(

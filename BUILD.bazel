@@ -1411,7 +1411,13 @@ cc_library(
         "@com_google_absl//absl/synchronization",
         "@com_google_absl//absl/time",
         "@com_google_googletest//:gtest_main",
-    ],
+    ] + select({
+        "@bazel_tools//src/conditions:windows": [
+            "@com_github_alirdn_windows_kill//:windows-kill-library",
+        ],
+        "//conditions:default": [
+        ],
+    }),
 )
 
 filegroup(

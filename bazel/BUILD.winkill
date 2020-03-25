@@ -1,0 +1,18 @@
+cc_library(
+    name = "windows-kill-library",
+    srcs = glob(
+        [
+            "windows-kill-library/*.cpp",
+            "windows-kill-library/*.h",
+        ],
+        exclude = [
+            "windows-kill-library/stdafx.cpp",
+        ]
+    ),
+    hdrs = [
+        "windows-kill-library/windows-kill-library.h"
+    ],
+    include_prefix = "winkill",
+    strip_include_prefix = "windows-kill-library",
+    visibility=["//visibility:public"],
+)

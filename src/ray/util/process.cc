@@ -40,6 +40,10 @@
 #include "ray/util/logging.h"
 #include "ray/util/util.h"
 
+#ifdef _WIN32
+#include "winkill/windows-kill-library.h"
+#endif
+
 namespace ray {
 
 class ProcessFD {
@@ -315,6 +319,67 @@ Process Process::FromPid(pid_t pid) {
 const void *Process::Get() const { return p_ ? &*p_ : NULL; }
 
 pid_t Process::GetId() const { return p_ ? p_->GetId() : -1; }
+
+void Process::Interrupt() {
+  if (p_) {
+    pid_t pid = p_->GetId();
+    if (pid >= 0) {
+      std::error_code error;
+      intptr_t fd = p_->GetFD();
+#ifdef _WIN32
+      if (DWORD live_pid = fd != -1 ? GetProcessId(reinterpret_cast<HANDLE>(fd)) : 0) {
+        WindowsKillLibrary::sendSignal(live_pid, WindowsKillLibrary::SIGNAL_TYPE_CTRL_C);
+      }
+#else
+      (void)fd;
+      if (kill(pid, SIGINT) != 0) {
+        error = std::error_code(errno, std::system_category());
+      }
+#endif
+      if (error) {
+        RAY_LOG(ERROR) << "Failed to send SIGINT to process " << pid << " with error "
+                       << error << ": " << error.message();
+      }
+    } else {
+      // (Dummy process case) Equivalent to terminating.
+      this->Terminate();
+    }
+  } else {
+    // (Null process case) Equivalent to terminating.
+    this->Terminate();
+  }
+}
+
+void Process::Terminate() {
+  if (p_) {
+    pid_t pid = p_->GetId();
+    if (pid >= 0) {
+      std::error_code error;
+      intptr_t fd = p_->GetFD();
+#ifdef _WIN32
+      if (DWORD live_pid = fd != -1 ? GetProcessId(reinterpret_cast<HANDLE>(fd)) : 0) {
+        WindowsKillLibrary::sendSignal(live_pid,
+                                       WindowsKillLibrary::SIGNAL_TYPE_CTRL_BREAK);
+      }
+#else
+      (void)fd;
+      if (kill(pid, SIGTERM) != 0) {
+        error = std::error_code(errno, std::system_category());
+      }
+#endif
+      if (error) {
+        RAY_LOG(ERROR) << "Failed to send SIGTERM to process " << pid << " with error "
+                       << error << ": " << error.message();
+      }
+    } else {
+      // (Dummy process case) Equivalent to killing.
+      this->Kill();
+    }
+  } else {
+    // (Null process case) Equivalent to killing.
+    this->Kill();
+  }
+}
 
 bool Process::IsNull() const { return !p_; }
 

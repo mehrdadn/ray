@@ -256,6 +256,13 @@ def ray_deps_setup():
     )
 
     auto_http_archive(
+        name = "com_github_alirdn_windows_kill",
+        build_file = "//bazel:BUILD.winkill",
+        url = "https://github.com/alirdn/windows-kill/archive/1.1.4.zip",
+        sha256 = "93d864c6d67f4e997e6da104ff29fdd0301409db9b34b122f76001d934031d97",
+    )
+
+    auto_http_archive(
         name = "msgpack",
         build_file = True,
         url = "https://github.com/msgpack/msgpack-c/archive/8085ab8721090a447cf98bb802d1406ad7afe420.tar.gz",
