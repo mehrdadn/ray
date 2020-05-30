@@ -39,6 +39,13 @@ std::string GetExeSuffix();
 /// Equivalent to Python's os.path.basename() for file system paths.
 std::string GetFileName(const std::string &path);
 
+/// Equivalent to Python's os.path.dirname() for file system paths.
+std::string GetParentPath(const std::string &path);
+
+/// \return The prefix of this path that constitutes the root of the path.
+///         On Windows, this can be multiple characters (e.g. C:\ for C:\Windows).
+std::string GetRootPath(const std::string &path);
+
 size_t GetRootPathLength(const std::string &path);
 
 /// \return A non-volatile temporary directory in which Ray can stores its files.
@@ -72,4 +79,19 @@ std::string JoinPaths(std::string base, Paths... components) {
   }
   return base;
 }
+
+/// Reads binary contents from a file. (There is no text translation.)
+/// \param ec Optional variable to receive the error code, or NULL to abort on error.
+std::string ReadAllFile(const char *path, std::error_code *ec = NULL);
+
+/// \return The equivalent path with all directory separators removed from the end.
+std::string TrimDirSep(const std::string &path);
+
+/// Writes binary contents to a file. (There is no text translation.)
+/// \param ec Optional variable to receive the error code, or NULL to abort on error.
+/// \return The actual number of bytes written. Matches the data size, unless there is an
+/// error.
+size_t WriteAllFile(const char *path, const std::string &data,
+                    std::error_code *ec = NULL);
+
 }  // namespace ray
