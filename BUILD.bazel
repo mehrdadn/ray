@@ -8,7 +8,7 @@ load("@com_github_grpc_grpc//bazel:cc_grpc_library.bzl", "cc_grpc_library")
 load("@com_github_grpc_grpc//bazel:cython_library.bzl", "pyx_library")
 load("@rules_proto_grpc//python:defs.bzl", "python_grpc_compile")
 load("@com_github_google_flatbuffers//:build_defs.bzl", "flatbuffer_cc_library")
-load("//bazel:ray.bzl", "COPTS", "PYX_COPTS", "PYX_SRCS", "copy_to_workspace")
+load("//bazel:ray.bzl", "COPTS", "PYX_COPTS", "PYX_SRCS", "symlink_in_workspace")
 
 config_setting(
     name = "windows_msvc-cl",
@@ -1905,25 +1905,25 @@ py_library(
     visibility = ["__subpackages__"],
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_raylet_so",
     srcs = ["python/ray/_raylet.so"],
     dstdir = "python/ray",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_streaming",
     srcs = ["python/ray/streaming/_streaming.so"],
     dstdir = "python/ray/streaming",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_all_py_proto",
     srcs = [":all_py_proto"],
     dstdir = "python/ray/core/generated",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_redis",
     srcs = [
         ":redis-cli",
@@ -1932,25 +1932,25 @@ copy_to_workspace(
     dstdir = "python/ray/core/src/ray/thirdparty/redis/src",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_libray_redis_module",
     srcs = [":libray_redis_module.so"],
     dstdir = "python/ray/core/src/ray/gcs/redis_module",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_raylet",
     srcs = [":raylet"],
     dstdir = "python/ray/core/src/ray/raylet",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_gcs_server",
     srcs = [":gcs_server"],
     dstdir = "python/ray/core/src/ray/gcs",
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_plasma_store_server",
     srcs = [":plasma_store_server"],
     dstdir = "python/ray/core/src/plasma",
@@ -1973,7 +1973,7 @@ genrule(
     outs = ["ray_pkg.out"],
     cmd = """
         if [ "$${OSTYPE-}" = "msys" ]; then
-            mv -f python/ray/_raylet.so python/ray/_raylet.pyd
+            ln -P -f python/ray/_raylet.so python/ray/_raylet.pyd
         fi
         # NOTE(hchen): Protobuf doesn't allow specifying Python package name. So we use this `sed`
         # command to change the import path in the generated file.

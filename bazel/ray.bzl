@@ -104,7 +104,7 @@ def define_java_module(
         },
     )
 
-def copy_to_workspace(name, srcs, dstdir = ""):
+def symlink_in_workspace(name, srcs, dstdir = ""):
     if dstdir.startswith("/") or dstdir.startswith("\\"):
         fail("Subdirectory must be a relative path: " + dstdir)
     src_locations = " ".join(["$(locations %s)" % (src,) for src in srcs])
@@ -117,7 +117,7 @@ def copy_to_workspace(name, srcs, dstdir = ""):
             mkdir -p -- {dstdir}
             for f in {locations}; do
                 rm -f -- {dstdir}$${{f##*/}}
-                cp -f -- "$$f" {dstdir}
+                ln -s -f -- "$${{PWD}}/$$f" {dstdir}
                 echo $$f {dstdir}$${{f##*/}}
             done > $@
         """.format(
@@ -131,7 +131,8 @@ def copy_to_workspace(name, srcs, dstdir = ""):
             ) && (
                 for %f in ({locations}) do @(
                     (if exist {dstdir}%~nxf del /f /q {dstdir}%~nxf) &&
-                    copy /B /Y %f {dstdir} >NUL &&
+                    (set dirname="%~dpf") &&
+                    (>NUL cmd /Q /D /S /V:ON /C mklink {dstdir}%~nxf %dirname:~2,-2%%~nxf) &&
                     (echo %f {dstdir}%~nxf)
                 )
             ) > $@

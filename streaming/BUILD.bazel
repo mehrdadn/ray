@@ -3,7 +3,7 @@
 
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_proto_grpc//python:defs.bzl", "python_proto_compile")
-load("//bazel:ray.bzl", "COPTS", "copy_to_workspace")
+load("//bazel:ray.bzl", "COPTS", "symlink_in_workspace")
 
 proto_library(
     name = "streaming_proto",
@@ -259,7 +259,7 @@ filegroup(
     ],
 )
 
-copy_to_workspace(
+symlink_in_workspace(
     name = "cp_all_py_proto",
     srcs = [":all_py_proto"],
     dstdir = "streaming/python/generated",
